@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "238999938830",
+    "firebase_url": "https://crossplatform-a6e19-default-rtdb.firebaseio.com",
+    "project_id": "crossplatform-a6e19",
+    "storage_bucket": "crossplatform-a6e19.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238999938830:android:888e9225ee75f105d2195f",
+        "android_client_info": {
+          "package_name": "com.example.market"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdZ07eEtAQ7qspH65uDRA2o7dmPu1XH-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
