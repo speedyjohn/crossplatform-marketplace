@@ -4,7 +4,7 @@ import '../models/product.dart';
 import 'product_detail_page.dart';
 
 class ProductListPage extends StatelessWidget {
-  const ProductListPage({super.key});
+  const ProductListPage({Key? key}) : super(key: key);
 
   Future<List<Product>> fetchProducts() async {
     QuerySnapshot snapshot =
@@ -29,24 +29,16 @@ class ProductListPage extends StatelessWidget {
             body: Center(child: Text("Error: ${snapshot.error}")),
           );
         }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Marketplace")),
-            body: const Center(child: Text("No products found")),
-          );
-        }
-        final List<Product> products = snapshot.data!;
+        final products = snapshot.data ?? [];
         final List<Product> randomProducts = List.from(products)..shuffle();
-        final List<Product> horizontalProducts = randomProducts.take(5).toList();
+        final horizontalProducts = randomProducts.take(5).toList();
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text("Marketplace"),
-          ),
+          appBar: AppBar(title: const Text("Marketplace")),
           body: SingleChildScrollView(
             child: Column(
               children: [
-                // Горизонтальный список рекомендуемых товаров (5 случайных)
+                // Featured horizontal list
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: SizedBox(
@@ -58,11 +50,24 @@ class ProductListPage extends StatelessWidget {
                         final product = horizontalProducts[index];
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ProductDetailPage(product: product),
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => ProductDetailPage(product: product),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  // Fade + slide from bottom
+                                  final offsetAnimation = Tween<Offset>(
+                                    begin: const Offset(0, 0.1),
+                                    end: Offset.zero,
+                                  ).animate(animation);
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: SlideTransition(
+                                      position: offsetAnimation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                transitionDuration: const Duration(milliseconds: 300),
                               ),
                             );
                           },
@@ -96,7 +101,7 @@ class ProductListPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Сетка всех товаров
+                // Grid of products
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: GridView.builder(
@@ -113,11 +118,23 @@ class ProductListPage extends StatelessWidget {
                       final product = products[index];
                       return GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ProductDetailPage(product: product),
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) => ProductDetailPage(product: product),
+                              transitionsBuilder: (_, animation, __, child) {
+                                final offsetAnimation = Tween<Offset>(
+                                  begin: const Offset(0, 0.1),
+                                  end: Offset.zero,
+                                ).animate(animation);
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: offsetAnimation,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              transitionDuration: const Duration(milliseconds: 300),
                             ),
                           );
                         },
@@ -139,8 +156,7 @@ class ProductListPage extends StatelessWidget {
                               const SizedBox(height: 8),
                               Text(
                                 product.name,
-                                style:
-                                const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Text('\$${product.price.toString()}'),
                             ],

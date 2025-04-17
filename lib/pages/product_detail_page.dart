@@ -11,7 +11,6 @@ class ProductDetailPage extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // SliverAppBar с изображением товара
           SliverAppBar(
             expandedHeight: 250,
             pinned: true,
@@ -23,7 +22,6 @@ class ProductDetailPage extends StatelessWidget {
               ),
             ),
           ),
-          // SliverList для детальной информации о товаре
           SliverList(
             delegate: SliverChildListDelegate([
               Padding(
@@ -49,7 +47,6 @@ class ProductDetailPage extends StatelessWidget {
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
-              // Горизонтальный список дополнительных деталей (пример)
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SingleChildScrollView(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'welcome_page.dart'; // Ensure correct relative path
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -30,36 +31,54 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  Future<void> _saveUserData() async {
+  Future<void> _saveUserDataAndNavigate() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userName', _nameController.text);
     await prefs.setString('userEmail', _emailController.text);
     await prefs.setString('userAddress', _addressController.text);
     await prefs.setString('userPhone', _phoneController.text);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile data saved')),
-    );
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          WelcomePage(userName: _nameController.text),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final fade = FadeTransition(opacity: animation, child: child);
+        final scale = ScaleTransition(
+          scale: Tween<double>(begin: 0.8, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeOut))
+              .animate(animation),
+          child: fade,
+        );
+        return scale;
+      },
+      transitionDuration: const Duration(milliseconds: 500),
+    ));
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
+      appBar: AppBar(title: const Text('Profile')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Фотография пользователя (центрирована)
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
-                  NetworkImage('https://placehold.jp/100x100.png'),
-                ),
+              CircleAvatar(
+                radius: 50,
+                backgroundImage:
+                NetworkImage('https://placehold.jp/100x100.png'),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -93,9 +112,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _saveUserData,
+                onPressed: _saveUserDataAndNavigate,
                 child: const Text('Save'),
               ),
             ],
