@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:market/custom_page_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'welcome_page.dart'; // Ensure correct relative path
 
@@ -39,20 +40,9 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.setString('userPhone', _phoneController.text);
 
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          WelcomePage(userName: _nameController.text),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final fade = FadeTransition(opacity: animation, child: child);
-        final scale = ScaleTransition(
-          scale: Tween<double>(begin: 0.8, end: 1.0)
-              .chain(CurveTween(curve: Curves.easeOut))
-              .animate(animation),
-          child: fade,
-        );
-        return scale;
-      },
-      transitionDuration: const Duration(milliseconds: 500),
+    Navigator.of(context).pushReplacement(CustomPageRoute(
+      child:  WelcomePage(userName: _nameController.text),
+      direction: AxisDirection.up,
     ));
   }
 

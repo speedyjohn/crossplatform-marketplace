@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../custom_page_route.dart';
 import '../main.dart'; // чтобы получить доступ к MainNavigationPage
 
 class WelcomePage extends StatelessWidget {
@@ -7,13 +8,10 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // После 2 секунд автоматический переход
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pushReplacement(PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const MainNavigationPage(),
-        transitionsBuilder: (_, animation, __, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
+      Navigator.of(context).pushReplacement(CustomPageRoute(
+        child: const MainNavigationPage(),
+        direction: AxisDirection.down,
       ));
     });
 

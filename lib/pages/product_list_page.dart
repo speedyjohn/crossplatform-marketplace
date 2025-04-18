@@ -3,174 +3,121 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import 'product_detail_page.dart';
 
-class ProductListPage extends StatelessWidget {
+class ProductListPage extends StatefulWidget {
   const ProductListPage({Key? key}) : super(key: key);
 
-  Future<List<Product>> fetchProducts() async {
+  @override
+  _ProductListPageState createState() => _ProductListPageState();
+}
+
+class _ProductListPageState extends State<ProductListPage> {
+  List<Product> _products = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    final products = await _fetchProducts();
+    setState(() {
+      _products = products;
+      _isLoading = false;
+    });
+  }
+
+  Future<List<Product>> _fetchProducts() async {
     QuerySnapshot snapshot =
     await FirebaseFirestore.instance.collection('products').get();
     return snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
   }
 
+  void _navigateToDetail(Product product, int index) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 500),
+        pageBuilder: (_, animation, __) {
+          return FadeTransition(
+            opacity: animation,
+            child: ProductDetailPage(product: product, index: index),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Product>>(
-      future: fetchProducts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Marketplace")),
-            body: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Marketplace")),
-            body: Center(child: Text("Error: ${snapshot.error}")),
-          );
-        }
-        final products = snapshot.data ?? [];
-        final List<Product> randomProducts = List.from(products)..shuffle();
-        final horizontalProducts = randomProducts.take(5).toList();
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
-        return Scaffold(
-          appBar: AppBar(title: const Text("Marketplace")),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Featured horizontal list
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: SizedBox(
-                    height: 150,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: horizontalProducts.length,
-                      itemBuilder: (ctx, index) {
-                        final product = horizontalProducts[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder: (_, __, ___) => ProductDetailPage(product: product),
-                                transitionsBuilder: (_, animation, __, child) {
-                                  // Fade + slide from bottom
-                                  final offsetAnimation = Tween<Offset>(
-                                    begin: const Offset(0, 0.1),
-                                    end: Offset.zero,
-                                  ).animate(animation);
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: SlideTransition(
-                                      position: offsetAnimation,
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                transitionDuration: const Duration(milliseconds: 300),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            width: 120,
-                            margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                            decoration: BoxDecoration(
-                              color: Colors.blueAccent.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.network(
-                                  product.imageUrl,
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  product.name,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+    return Scaffold(
+      appBar: AppBar(title: const Text('Products')),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.7,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: _products.length,
+        itemBuilder: (context, index) {
+          final product = _products[index];
+          return Card(
+            elevation: 2,
+            child: InkWell(
+              onTap: () => _navigateToDetail(product, index),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Hero(
+                      tag: 'product-${product.id}-$index',
+                      child: Image.network(
+                        product.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+                      ),
                     ),
                   ),
-                ),
-                // Grid of products
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: products.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 0.75,
-                    ),
-                    itemBuilder: (ctx, index) {
-                      final product = products[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder: (_, __, ___) => ProductDetailPage(product: product),
-                              transitionsBuilder: (_, animation, __, child) {
-                                final offsetAnimation = Tween<Offset>(
-                                  begin: const Offset(0, 0.1),
-                                  end: Offset.zero,
-                                ).animate(animation);
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: SlideTransition(
-                                    position: offsetAnimation,
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              transitionDuration: const Duration(milliseconds: 300),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(10),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: Image.network(
-                                  product.imageUrl,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                product.name,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text('\$${product.price.toString()}'),
-                            ],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '\$${product.price.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 14,
                           ),
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

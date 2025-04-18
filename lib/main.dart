@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:animations/animations.dart';
 
+import 'custom_page_route.dart';
 import 'firebase_options.dart';
 
 import 'pages/product_list_page.dart';
@@ -63,7 +65,10 @@ class _UserCheckScreenState extends State<UserCheckScreen> {
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+          CustomPageRoute(
+            child: const MainNavigationPage(),
+            direction: AxisDirection.left,
+          ),
         );
       });
     } else {
@@ -120,7 +125,7 @@ class _UserCheckScreenState extends State<UserCheckScreen> {
 }
 
 class MainNavigationPage extends StatefulWidget {
-  const MainNavigationPage({super.key});
+  const MainNavigationPage({Key? key}) : super(key: key);
 
   @override
   State<MainNavigationPage> createState() => _MainNavigationPageState();
@@ -128,11 +133,10 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
-
-  static final List<Widget> _pages = <Widget>[
-    const ProductListPage(),
-    const CartPage(),
-    const ProfilePage(),
+  final List<Widget> _pages = const [
+    ProductListPage(),
+    CartPage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -144,7 +148,21 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: PageTransitionSwitcher(
+        transitionBuilder: (
+            Widget child,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            ) {
+          return FadeThroughTransition(
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+        duration: const Duration(milliseconds: 500),
+        child: _pages[_selectedIndex],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -160,7 +178,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
-          )
+          ),
         ],
       ),
     );
