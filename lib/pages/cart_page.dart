@@ -40,7 +40,8 @@ class _CartPageState extends State<CartPage> {
   Future<Product> _fetchRandomProduct() async {
     QuerySnapshot snapshot =
     await FirebaseFirestore.instance.collection('products').get();
-    final allProducts = snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
+    final allProducts =
+    snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
     allProducts.shuffle();
     return allProducts.first;
   }
@@ -55,7 +56,8 @@ class _CartPageState extends State<CartPage> {
       _cartProducts.insert(0, randomProduct);
       _totalPrice += randomProduct.price;
     });
-    _listKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 300));
+    _listKey.currentState?.insertItem(0,
+        duration: const Duration(milliseconds: 300));
   }
 
   void _removeItem(int index) {
@@ -70,6 +72,24 @@ class _CartPageState extends State<CartPage> {
           (context, animation) => _buildRemovedItem(removedProduct, animation),
       duration: const Duration(milliseconds: 300),
     );
+  }
+
+  Future<void> _removeAllItems() async {
+    for (var i = _cartProducts.length - 1; i >= 0; i--) {
+      final removedProduct = _cartProducts[i];
+      await Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() {
+            _totalPrice -= removedProduct.price;
+            _cartProducts.removeAt(i);
+          });
+          _listKey.currentState?.removeItem(
+            i,
+                (context, animation) => _buildRemovedItem(removedProduct, animation),
+          );
+        }
+      });
+    }
   }
 
   Widget _buildRemovedItem(Product product, Animation<double> animation) {
@@ -276,17 +296,8 @@ class _CartPageState extends State<CartPage> {
           if (_cartProducts.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep),
-              onPressed: () {
-                setState(() {
-                  for (var i = _cartProducts.length - 1; i >= 0; i--) {
-                    _listKey.currentState?.removeItem(
-                      i,
-                          (context, animation) => _buildRemovedItem(_cartProducts[i], animation),
-                    );
-                  }
-                  _cartProducts.clear();
-                  _totalPrice = 0.0;
-                });
+              onPressed: () async {
+                await _removeAllItems();
               },
             ),
         ],
