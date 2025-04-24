@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../models/product.dart';
 import '../product_detail/product_detail_page.dart';
 
@@ -38,77 +37,102 @@ class _ProductListPageState extends State<ProductListPage> {
   void _navigateToDetail(Product product, int index) {
     Navigator.push(
       context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 500),
-        pageBuilder: (_, animation, __) {
-          return FadeTransition(
-            opacity: animation,
-            child: ProductDetailPage(product: product, index: index),
-          );
-        },
+      MaterialPageRoute(
+        builder: (_) => ProductDetailPage(product: product, index: index),
       ),
     );
   }
 
+  Widget _buildRatingStars(double rating) {
+    return Row(
+      children: List.generate(5, (index) {
+        return Icon(
+          index < rating ? Icons.star : Icons.star_border,
+          color: Colors.amber,
+          size: 16,
+        );
+      }),
+    );
+  }
+
   Widget _buildProductItem(Product product, int index) {
+    final theme = Theme.of(context);
     return Card(
       elevation: 2,
+      color: theme.primaryColor,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(0),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
         onTap: () => _navigateToDetail(product, index),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Hero(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Изображение товара
+              Hero(
                 tag: 'product-${product.id}-$index',
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius: BorderRadius.circular(8),
                   child: Image.network(
                     product.imageUrl,
+                    width: 100,
+                    height: 100,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
+                      width: 100,
+                      height: 100,
                       color: Colors.grey[200],
-                      child: const Center(
-                        child: Icon(Icons.broken_image, size: 40),
-                      ),
+                      child: const Icon(Icons.broken_image),
                     ),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              const SizedBox(width: 12),
+              // Информация о товаре
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 4),
+                    Text(
+                      product.description.length > 50
+                          ? '${product.description.substring(0, 50)}...'
+                          : product.description,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    _buildRatingStars(4), // Статичный рейтинг 4/5
+                    const SizedBox(height: 8),
+                    Text(
+                      '\$${product.price.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -130,30 +154,12 @@ class _ProductListPageState extends State<ProductListPage> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: AnimationLimiter(
-        child: GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: _products.length,
-          itemBuilder: (context, index) {
-            return AnimationConfiguration.staggeredGrid(
-              position: index,
-              duration: const Duration(milliseconds: 500),
-              columnCount: 2,
-              child: SlideAnimation(
-                verticalOffset: 50.0,
-                child: FadeInAnimation(
-                  child: _buildProductItem(_products[index], index),
-                ),
-              ),
-            );
-          },
-        ),
+      body: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: _products.length,
+        itemBuilder: (context, index) {
+          return _buildProductItem(_products[index], index);
+        },
       ),
     );
   }

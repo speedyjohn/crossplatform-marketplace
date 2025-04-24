@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:market/pages/settings/settings_page.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animations/animations.dart';
 
+import 'ThemeProvider.dart';
 import 'custom_page_route.dart';
 import 'firebase_options.dart';
 
@@ -18,7 +20,15 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MarketplaceApp());
+  final prefs = await SharedPreferences.getInstance();
+  final isDark = prefs.getBool('darkMode') ?? false;
+
+  runApp(
+    ChangeNotifierProvider(
+        create: (_) => ThemeProvider()..setTheme(isDark),
+        child: MarketplaceApp()
+    )
+  );
 }
 
 class MarketplaceApp extends StatelessWidget {
@@ -26,11 +36,14 @@ class MarketplaceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'Marketplace App',
+      themeMode: themeProvider.themeMode,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white,
+
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
@@ -44,6 +57,28 @@ class MarketplaceApp extends StatelessWidget {
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Colors.black),
           bodyMedium: TextStyle(color: Colors.black87),
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black12,
+        iconTheme: IconThemeData(color: Colors.white),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black54,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        colorScheme: ColorScheme.fromSwatch(
+          brightness: Brightness.dark,
+          primarySwatch: Colors.blueGrey,
+        ).copyWith(
+          primary: Colors.white,
+          secondary: Colors.grey[100],
+          background: Colors.black,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white70),
         ),
       ),
       home: const UserCheckScreen(),
@@ -164,6 +199,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: PageTransitionSwitcher(
         transitionBuilder: (
@@ -183,8 +219,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black12,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.primary.withAlpha(600),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
