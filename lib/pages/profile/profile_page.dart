@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:market/custom_page_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'welcome_page.dart'; // Ensure correct relative path
+import '../welcome/welcome_page.dart'; // Ensure correct relative path
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
