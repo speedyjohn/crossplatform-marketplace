@@ -96,7 +96,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       await _picker.pickImage(source: source);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
   }
@@ -104,13 +104,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void _addComment() {
     if (_commentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите текст комментария')),
+        const SnackBar(content: Text('Enter text of the comment.')),
       );
       return;
     }
 
     final newComment = Comment(
-      userName: "Вы",
+      userName: "You",
       text: _commentController.text,
       date: "${DateTime.now().day}.${DateTime.now().month}.${DateTime.now().year}",
     );
@@ -122,22 +122,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildSpecsTable() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Details",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onPrimary
             ),
           ),
           const SizedBox(height: 12),
@@ -160,9 +162,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Expanded(
                   child: Text(
                     entry.value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onPrimary
                     ),
                   ),
                 ),
@@ -175,11 +178,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildCommentItem(Comment comment) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
@@ -197,9 +201,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             children: [
               Text(
                 comment.userName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  color: theme.colorScheme.onPrimary
                 ),
               ),
               Text(
@@ -212,7 +217,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(comment.text),
+          Text(
+            comment.text,
+            style: TextStyle(
+              color: theme.colorScheme.onPrimary,
+            ),
+          ),
         ],
       ),
     );
@@ -266,16 +276,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildCommentsSection() {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(top: 30, bottom: 16),
           child: Text(
             "Reviews",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onPrimary
             ),
           ),
         ),
@@ -288,6 +300,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -331,15 +344,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       Expanded(
                         child: Text(
                           widget.product.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onPrimary
                           ),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.red.withAlpha(850),
                           borderRadius: BorderRadius.circular(15),
@@ -349,7 +362,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           '\$${widget.product.price.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 20,
-                            color: Theme.of(context).primaryColor,
+                            color: theme.colorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

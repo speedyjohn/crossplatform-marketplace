@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import '../../ThemeProvider.dart';
+import '../../providers/ThemeProvider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -37,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _updateTheme(bool value) {
     final provider = Provider.of<ThemeProvider>(context, listen: false);
-    provider.setTheme(value);
+    provider.updateTheme(value);
     setState(() {
       _isDarkMode = value;
     });
@@ -55,7 +55,6 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Настройка темы
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -68,7 +67,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Внешний вид',
+                        'Visual',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -77,7 +76,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SwitchListTile(
-                      title: const Text('Тёмная тема'),
+                      title: const Text('Dark Theme'),
                       value: _isDarkMode,
                       onChanged: _updateTheme,
                       secondary: Icon(
@@ -96,7 +95,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
             const SizedBox(height: 20),
 
-            // Настройка языка
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -109,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Язык',
+                        'Language',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -148,16 +146,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
             const SizedBox(height: 30),
 
-            // Кнопка сброса настроек
             OutlinedButton.icon(
               icon: const Icon(Icons.restore),
-              label: const Text('Сбросить настройки'),
+              label: const Text('Reset settings'),
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
                 final provider =
                 Provider.of<ThemeProvider>(context, listen: false);
-                provider.setTheme(false);
+                provider.updateTheme(false);
                 setState(() {
                   _isDarkMode = false;
                   _selectedLanguage = 'Русский';

@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+import 'package:market/pages/auth/auth_page.dart';
+import 'package:market/pages/main/main_page.dart';
+import 'package:market/pages/profile/guest_profile_page.dart';
 import 'package:market/pages/settings/settings_page.dart';
+import 'package:market/providers/AuthProvider.dart';
+import 'package:market/services/AuthService.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animations/animations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'ThemeProvider.dart';
+import 'package:flutter/cupertino.dart';
+
+import 'providers/ThemeProvider.dart';
 import 'custom_page_route.dart';
 import 'firebase_options.dart';
 
@@ -23,160 +33,193 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final isDark = prefs.getBool('darkMode') ?? false;
 
-  runApp(
-    ChangeNotifierProvider(
-        create: (_) => ThemeProvider()..setTheme(isDark),
-        child: MarketplaceApp()
-    )
-  );
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]).then((_) {
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)..updateTheme(isDark)),
+          ChangeNotifierProvider(create: (_) => AuthProvider(AuthService())),
+
+        ],
+        child: const MyApp(),
+      ),
+    );
+  });
 }
 
-class MarketplaceApp extends StatelessWidget {
-  const MarketplaceApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
-      title: 'Marketplace App',
+      title: 'My Shop',
+      debugShowCheckedModeBanner: false,
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
       themeMode: themeProvider.themeMode,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('ru', ''),
+        Locale('kk', ''),
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: const AuthWrapper(),
+    );
+  }
 
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 0,
-        ),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: Colors.black,
-          secondary: Colors.grey[600],
-          background: Colors.white,
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.black),
-          bodyMedium: TextStyle(color: Colors.black87),
-        ),
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      primarySwatch: Colors.blue,
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
       ),
-      darkTheme: ThemeData(
+      colorScheme: ColorScheme.fromSwatch().copyWith(
+        primary: Colors.black,
+        secondary: Colors.grey[600],
+        background: Colors.white,
+        onPrimary: Colors.black,
+      ),
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: Colors.black),
+        bodyMedium: TextStyle(color: Colors.black87),
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: Colors.black12,
+      iconTheme: const IconThemeData(color: Colors.white),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.black54,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      colorScheme: ColorScheme.fromSwatch(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.black12,
-        iconTheme: IconThemeData(color: Colors.white),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black54,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        colorScheme: ColorScheme.fromSwatch(
-          brightness: Brightness.dark,
-          primarySwatch: Colors.blueGrey,
-        ).copyWith(
-          primary: Colors.white,
-          secondary: Colors.grey[100],
-          background: Colors.black,
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white70),
-        ),
+        primarySwatch: Colors.blueGrey,
+      ).copyWith(
+        primary: Colors.white,
+        secondary: Colors.grey[100],
+        background: Colors.black,
       ),
-      home: const UserCheckScreen(),
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: Colors.white),
+        bodyMedium: TextStyle(color: Colors.white70),
+      ),
     );
   }
 }
 
-class UserCheckScreen extends StatefulWidget {
-  const UserCheckScreen({super.key});
-
-  @override
-  State<UserCheckScreen> createState() => _UserCheckScreenState();
-}
-
-class _UserCheckScreenState extends State<UserCheckScreen> {
-  String? _userName;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkUserData();
-  }
-
-  Future<void> _checkUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('userName');
-    final email = prefs.getString('userEmail');
-
-    if (name != null && name.isNotEmpty && email != null && email.isNotEmpty) {
-      setState(() {
-        _userName = name;
-        _isLoading = false;
-      });
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacement(
-          context,
-          CustomPageRoute(
-            child: const MainNavigationPage(),
-            direction: AxisDirection.left,
-          ),
-        );
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    } else {
-      if (_userName != null) {
-        return Scaffold(
-          body: Center(
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    return FutureBuilder(
+      future: authProvider.initialize(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SplashScreen();
+        }
+
+        if (authProvider.isLoggedIn) {
+          return const MainNavigationPage();
+        } else {
+          return Stack(
+            children: [
+              const MainNavigationPage(guestMode: true),
+              if (authProvider.isGuest)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top,
+                  left: 0,
+                  right: 0,
+                  child: _GuestModeBanner(),
+                ),
+            ],
+          );
+        }
+      },
+    );
+  }
+}
+
+class _GuestModeBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      color: Colors.amber,
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: Colors.black),
+          const SizedBox(width: 8),
+          const Expanded(
             child: Text(
-              "Welcome, $_userName!",
-              style: const TextStyle(fontSize: 24),
+              'Guest Mode - Some features are limited',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16
+              ),
             ),
           ),
-        );
-      } else {
-        return Scaffold(
-          appBar: AppBar(title: const Text("Enter Your Details")),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "You haven't entered your details yet.",
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ProfilePage()),
-                    );
-                  },
-                  child: const Text("Enter Details"),
-                ),
-              ],
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => AuthPage()),
+            ),
+            child: const Text(
+              'LOGIN',
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ),
-        );
-      }
-    }
+        ],
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
   }
 }
 
 class MainNavigationPage extends StatefulWidget {
-  const MainNavigationPage({Key? key}) : super(key: key);
+  final bool guestMode;
+
+  const MainNavigationPage({
+    Key? key,
+    this.guestMode = false,
+  }) : super(key: key);
 
   @override
   State<MainNavigationPage> createState() => _MainNavigationPageState();
@@ -184,48 +227,57 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = const [
-    ProductListPage(),
-    CartPage(),
-    ProfilePage(),
-    SettingsPage(),
-  ];
+
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const ProductListPage(),
+      if (!widget.guestMode) const CartPage(),
+      widget.guestMode ? const GuestProfilePage() : ProfilePage(),
+    ];
+  }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (widget.guestMode && (index == 2 || index == 3)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please login to access this feature'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
-      body: PageTransitionSwitcher(
-        transitionBuilder: (
-            Widget child,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            ) {
-          return FadeThroughTransition(
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            child: child,
-          );
-        },
-        duration: const Duration(milliseconds: 500),
-        child: _pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
         selectedItemColor: theme.colorScheme.primary,
-        unselectedItemColor: theme.colorScheme.primary.withAlpha(600),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings', ),
+        unselectedItemColor: theme.colorScheme.onSurface.withOpacity(0.6),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          if(!widget.guestMode) const BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(widget.guestMode ? Icons.lock : Icons.person),
+            label: widget.guestMode ? 'Login' : 'Profile',
+          ),
         ],
       ),
     );

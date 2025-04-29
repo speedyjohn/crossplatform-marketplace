@@ -59,7 +59,6 @@ class _ProductListPageState extends State<ProductListPage> {
     final theme = Theme.of(context);
     return Card(
       elevation: 2,
-      color: theme.primaryColor,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(0),

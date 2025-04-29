@@ -1,0 +1,11 @@
+{
+    "m_title": "Products"
+    "c_title": "Cart",
+    "c_checkout": "Checkout",
+    "c_add": "Add Product",
+    "c_total": "Total"
+    "nav_home": "Home",
+    "nav_cart": "Cart",
+    "nav_login": "Profile"
+
+}
