@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/product.dart';
 import '../../models/comment.dart';
+import 'product_detail_header.dart';
+import 'product_specs_table.dart';
+import 'comment_item.dart';
+import 'comment_input.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -121,319 +125,72 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     });
   }
 
-  Widget _buildSpecsTable() {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Details",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onPrimary
-            ),
-          ),
-          const SizedBox(height: 12),
-          ..._specs.entries.map((entry) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 120,
-                  child: Text(
-                    entry.key,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    entry.value,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onPrimary
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommentItem(Comment comment) {
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                comment.userName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: theme.colorScheme.onPrimary
-                ),
-              ),
-              Text(
-                comment.date,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            comment.text,
-            style: TextStyle(
-              color: theme.colorScheme.onPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommentInput() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.photo_library),
-              onPressed: () => _pickImage(ImageSource.gallery),
-              tooltip: 'Pick from gallery',
-            ),
-            IconButton(
-              icon: const Icon(Icons.camera_alt),
-              onPressed: () => _pickImage(ImageSource.camera),
-              tooltip: 'Make photo',
-            ),
-            const SizedBox(width: 8),
-            const Text('Pin photo',
-                style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _commentController,
-                decoration: InputDecoration(
-                  hintText: "Leave your review...",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
-                ),
-                maxLines: null,
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.send, color: Colors.blue, size: 28),
-              onPressed: _addComment,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCommentsSection() {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 30, bottom: 16),
-          child: Text(
-            "Reviews",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onPrimary
-            ),
-          ),
-        ),
-        ..._comments.map(_buildCommentItem).toList(),
-        const SizedBox(height: 16),
-        _buildCommentInput(),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 300,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: GestureDetector(
-                onTap: () => _showFullScreenImage(context),
-                child: Hero(
-                  tag: 'product-${widget.product.id}-${widget.index}',
-                  child: Image.network(
-                    widget.product.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: Icon(Icons.broken_image, size: 50),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+      appBar: AppBar(
+        title: Text(widget.product.name),
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ProductDetailHeader(
+              product: widget.product,
+              index: widget.index,
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.product.name,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onPrimary
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withAlpha(850),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.red),
-                        ),
-                        child: Text(
-                          '\$${widget.product.price.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: theme.colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    widget.product.name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 8),
                   Text(
                     widget.product.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
-                      height: 1.5,
+                      color: Colors.grey[600],
                     ),
                   ),
-                  _buildSpecsTable(),
-                  if (widget.product.details != null && widget.product.details!.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(top: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ...widget.product.details!.map(
-                                (detail) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 4, right: 8),
-                                    child: Icon(
-                                      Icons.circle,
-                                      size: 8,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      detail,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '\$${widget.product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
                     ),
-                  _buildCommentsSection(),
+                  ),
+                  ProductSpecsTable(specs: _specs),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Comments',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  CommentInput(
+                    controller: _commentController,
+                    onSubmit: _addComment,
+                    picker: _picker,
+                  ),
+                  const SizedBox(height: 16),
+                  ..._comments.map((comment) => CommentItem(comment: comment)),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

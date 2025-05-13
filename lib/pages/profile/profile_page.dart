@@ -2,7 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/AuthProvider.dart';
 import '../../providers/ThemeProvider.dart';
-import '../auth/auth_page.dart';
+import 'profile_header.dart';
+import 'profile_user_info.dart';
+import 'profile_theme_settings.dart';
+import 'profile_language_settings.dart';
+import 'profile_guest_view.dart';
+import 'settings/password_settings.dart';
+import 'settings/two_factor_settings.dart';
+import 'settings/delivery_addresses.dart';
+import 'settings/payment_methods.dart';
+import 'settings/order_history.dart';
+import 'settings/account_deletion.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -11,188 +21,81 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+    final currentLanguage = Localizations.localeOf(context).languageCode;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile Settings'),
         actions: [
-          if (authProvider.isLoggedIn)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                await authProvider.logout();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Logged out successfully'),
-                    action: SnackBarAction(
-                      label: 'Sign In',
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const AuthPage()),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await authProvider.logout();
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+          ),
         ],
       ),
       body: authProvider.isLoggedIn
-          ? _buildUserProfile(context, authProvider, themeProvider)
-          : _buildGuestProfile(context),
+          ? _buildUserProfile(
+              context,
+              authProvider,
+              isDarkMode,
+              currentLanguage,
+            )
+          : ProfileGuestView(
+              isDarkMode: isDarkMode,
+              currentLanguage: currentLanguage,
+              onThemeChanged: (value) {
+                themeProvider.updateTheme(value);
+              },
+              onLanguageChanged: (value) {
+                if (value != null) {
+                  Provider.of<AuthProvider>(context, listen: false)
+                      .updateLanguage(value);
+                }
+              },
+            ),
     );
   }
 
   Widget _buildUserProfile(
-      BuildContext context,
-      AuthProvider authProvider,
-      ThemeProvider themeProvider,
-      ) {
-    final user = authProvider.user!;
-
+    BuildContext context,
+    AuthProvider authProvider,
+    bool isDarkMode,
+    String currentLanguage,
+  ) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Информация о пользователе
-        ListTile(
-          leading: const Icon(Icons.email),
-          title: const Text('Email'),
-          subtitle: Text(user.email),
+        ProfileUserInfo(user: authProvider.user!),
+        ProfileThemeSettings(
+          isDarkMode: isDarkMode,
+          onThemeChanged: (value) {
+            Provider.of<ThemeProvider>(context, listen: false)
+                .updateTheme(value);
+            if (authProvider.isLoggedIn) {
+              authProvider.updateTheme(value ? 'dark' : 'light');
+            }
+          },
         ),
-        if (user.name != null) ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Name'),
-          subtitle: Text(user.name!),
+        ProfileLanguageSettings(
+          currentLanguage: currentLanguage,
+          onLanguageChanged: (value) {
+            if (value != null) {
+              authProvider.updateLanguage(value);
+            }
+          },
         ),
-
-        // Настройки темы
-        const Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Appearance',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.brightness_4),
-          title: const Text('Dark Mode'),
-          trailing: Switch(
-            value: themeProvider.themeMode == ThemeMode.dark,
-            onChanged: (value) {
-              themeProvider.updateTheme(value ? true : false);
-              if (authProvider.isLoggedIn) {
-                authProvider.updateTheme(value ? 'dark' : 'light');
-              }
-            },
-          ),
-        ),
-
-        // Настройки языка
-        const Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Language',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text('App Language'),
-          trailing: DropdownButton<String>(
-            value: Localizations.localeOf(context).languageCode,
-            items: const [
-              DropdownMenuItem(value: 'en', child: Text('English')),
-              DropdownMenuItem(value: 'ru', child: Text('Русский')),
-              DropdownMenuItem(value: 'kk', child: Text('Қазақша')),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                authProvider.updateLanguage(value);
-              }
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGuestProfile(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Гостевое сообщение
-        Center(
-          child: Column(
-            children: [
-              const Icon(Icons.person_outline, size: 64, color: Colors.grey),
-              const SizedBox(height: 16),
-              const Text(
-                'You are in guest mode',
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Sign in to access full profile features',
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AuthPage()),
-                  );
-                },
-                child: const Text('Sign In'),
-              ),
-            ],
-          ),
-        ),
-
-        // Базовые настройки для гостей
-        const Divider(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Guest Settings',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.brightness_4),
-          title: const Text('Dark Mode'),
-          trailing: Switch(
-            value: themeProvider.themeMode == ThemeMode.dark,
-            onChanged: (value) {
-              themeProvider.updateTheme(value ? true : false);
-            },
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text('App Language'),
-          trailing: DropdownButton<String>(
-            value: Localizations.localeOf(context).languageCode,
-            items: const [
-              DropdownMenuItem(value: 'en', child: Text('English')),
-              DropdownMenuItem(value: 'ru', child: Text('Русский')),
-              DropdownMenuItem(value: 'kk', child: Text('Қазақша')),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                // Для гостей сохраняем только локально
-                Provider.of<AuthProvider>(context, listen: false)
-                    .updateLanguage(value);
-              }
-            },
-          ),
-        ),
+        PasswordSettings(),
+        TwoFactorSettings(),
+        DeliveryAddresses(),
+        PaymentMethods(),
+        OrderHistory(),
+        AccountDeletion(),
       ],
     );
   }

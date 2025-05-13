@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../../providers/ThemeProvider.dart';
+import 'settings_theme_card.dart';
+import 'settings_language_card.dart';
+import 'settings_reset_button.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -44,6 +47,26 @@ class _SettingsPageState extends State<SettingsPage> {
     _saveSettings();
   }
 
+  void _updateLanguage(String? newValue) {
+    if (newValue != null) {
+      setState(() {
+        _selectedLanguage = newValue;
+      });
+      _saveSettings();
+    }
+  }
+
+  Future<void> _resetSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    final provider = Provider.of<ThemeProvider>(context, listen: false);
+    provider.updateTheme(false);
+    setState(() {
+      _isDarkMode = false;
+      _selectedLanguage = 'Русский';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,118 +78,18 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Visual',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SwitchListTile(
-                      title: const Text('Dark Theme'),
-                      value: _isDarkMode,
-                      onChanged: _updateTheme,
-                      secondary: Icon(
-                        _isDarkMode
-                            ? Icons.nightlight_round
-                            : Icons.wb_sunny,
-                        color: _isDarkMode
-                            ? Colors.blueAccent
-                            : Colors.orange,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            SettingsThemeCard(
+              isDarkMode: _isDarkMode,
+              onThemeChanged: _updateTheme,
             ),
-
             const SizedBox(height: 20),
-
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Language',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: _selectedLanguage,
-                      items: _languages.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedLanguage = newValue;
-                          });
-                          _saveSettings();
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            SettingsLanguageCard(
+              selectedLanguage: _selectedLanguage,
+              languages: _languages,
+              onLanguageChanged: _updateLanguage,
             ),
-
             const SizedBox(height: 30),
-
-            OutlinedButton.icon(
-              icon: const Icon(Icons.restore),
-              label: const Text('Reset settings'),
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.clear();
-                final provider =
-                Provider.of<ThemeProvider>(context, listen: false);
-                provider.updateTheme(false);
-                setState(() {
-                  _isDarkMode = false;
-                  _selectedLanguage = 'Русский';
-                });
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
+            SettingsResetButton(onReset: _resetSettings),
           ],
         ),
       ),
