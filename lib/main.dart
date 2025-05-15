@@ -12,6 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'providers/connectivity_provider.dart';
+import 'providers/user_session_provider.dart';
 
 import 'package:flutter/cupertino.dart';
 
@@ -22,6 +24,8 @@ import 'firebase_options.dart';
 import 'pages/product_list/product_list_page.dart';
 import 'pages/cart/cart_page.dart';
 import 'pages/profile/profile_page.dart';
+import 'widgets/offline_indicator.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +48,8 @@ Future<void> main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)..updateTheme(isDark)),
           ChangeNotifierProvider(create: (_) => AuthProvider(AuthService())),
-
+          ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+          ChangeNotifierProvider(create: (_) => UserSessionProvider()),
         ],
         child: const MyApp(),
       ),
@@ -258,9 +263,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
+      body: Column(
+        children: [
+          const OfflineIndicator(),
+          Expanded(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: _pages,
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

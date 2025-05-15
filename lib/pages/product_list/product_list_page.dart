@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/product.dart';
+import '../../services/product_storage_service.dart';
+import '../../providers/connectivity_provider.dart';
 import 'product_list_item.dart';
 import 'product_list_error.dart';
 import 'product_list_loading.dart';
@@ -18,11 +21,12 @@ class _ProductListPageState extends State<ProductListPage> {
   bool _isLoading = true;
   bool _showInitialLoader = true;
   bool _hasError = false;
+  late final ProductStorageService _productService;
 
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    _initProductService();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
@@ -32,9 +36,15 @@ class _ProductListPageState extends State<ProductListPage> {
     });
   }
 
+  Future<void> _initProductService() async {
+    final prefs = await SharedPreferences.getInstance();
+    _productService = ProductStorageService(prefs: prefs);
+    _loadProducts();
+  }
+
   Future<void> _loadProducts() async {
     try {
-      final products = await _fetchProducts();
+      final products = await _productService.getProducts();
       if (mounted) {
         setState(() {
           _products = products;
@@ -52,12 +62,6 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  Future<List<Product>> _fetchProducts() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('products').get();
-    return snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_showInitialLoader) {
@@ -72,6 +76,26 @@ class _ProductListPageState extends State<ProductListPage> {
         title: const Text('Products'),
         centerTitle: true,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(30),
+          child: Consumer<ConnectivityProvider>(
+            builder: (context, connectivity, _) {
+              if (!connectivity.isOnline) {
+                return Container(
+                  width: double.infinity,
+                  color: Colors.orange,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: const Text(
+                    'Offline Mode - Showing Cached Data',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
       ),
       body: _hasError
           ? ProductListError(onRetry: _loadProducts)
