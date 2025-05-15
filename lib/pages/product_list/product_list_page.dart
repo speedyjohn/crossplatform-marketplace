@@ -62,6 +62,50 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
+  Widget _buildHeader(bool isOnline) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Products',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+          ),
+          if (isOnline)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadProducts,
+              tooltip: 'Обновить список',
+            )
+          else
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.wifi_off,
+                  size: 18,
+                  color: Colors.grey[600],
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'You are offline',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_showInitialLoader) {
@@ -71,48 +115,35 @@ class _ProductListPageState extends State<ProductListPage> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Products'),
-        centerTitle: true,
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(30),
-          child: Consumer<ConnectivityProvider>(
-            builder: (context, connectivity, _) {
-              if (!connectivity.isOnline) {
-                return Container(
-                  width: double.infinity,
-                  color: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: const Text(
-                    'Offline Mode - Showing Cached Data',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
+    return Consumer<ConnectivityProvider>(
+      builder: (context, connectivity, child) {
+        return Scaffold(
+          body: Column(
+            children: [
+              _buildHeader(connectivity.isOnline),
+              Expanded(
+                child: _hasError
+                    ? ProductListError(onRetry: _loadProducts)
+                    : _isLoading
+                        ? const ProductListLoading()
+                        : _products.isEmpty
+                            ? const ProductListEmpty()
+                            : ListView.builder(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                itemCount: _products.length,
+                                itemBuilder: (context, index) {
+                                  return ProductListItem(
+                                    product: _products[index],
+                                    index: index,
+                                  );
+                                },
+                              ),
+              ),
+            ],
           ),
-        ),
-      ),
-      body: _hasError
-          ? ProductListError(onRetry: _loadProducts)
-          : _isLoading
-              ? const ProductListLoading()
-              : _products.isEmpty
-                  ? const ProductListEmpty()
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _products.length,
-                      itemBuilder: (context, index) {
-                        return ProductListItem(
-                          product: _products[index],
-                          index: index,
-                        );
-                      },
-                    ),
+        );
+      },
     );
   }
 }
+
