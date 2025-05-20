@@ -53,7 +53,7 @@ Future<void> main() async {
           ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)..updateTheme(isDark)),
           ChangeNotifierProvider(create: (_) => AuthProvider(AuthService())),
           ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
-          ChangeNotifierProvider(create: (_) => UserSessionProvider()),
+          ChangeNotifierProvider(create: (_) => UserSessionProvider(prefs)),
           Provider(create: (_) => PinService(prefs)),
           ChangeNotifierProxyProvider<PinService, PinProvider>(
             create: (context) => PinProvider(context.read<PinService>()),
