@@ -13,6 +13,9 @@ import 'settings/delivery_addresses.dart';
 import 'settings/payment_methods.dart';
 import 'settings/order_history.dart';
 import 'settings/account_deletion.dart';
+import '../../providers/user_session_provider.dart';
+import '../../providers/pin_provider.dart';
+import '../pin/change_pin_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -26,15 +29,31 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Settings'),
+        title: const Text('Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authProvider.logout();
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.read<PinProvider>().logout();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],
@@ -89,6 +108,20 @@ class ProfilePage extends StatelessWidget {
               authProvider.updateLanguage(value);
             }
           },
+        ),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.pin),
+            title: const Text('Change PIN Code'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChangePinPage(),
+                ),
+              );
+            },
+          ),
         ),
         PasswordSettings(),
         TwoFactorSettings(),

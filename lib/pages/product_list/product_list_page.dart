@@ -21,6 +21,7 @@ class _ProductListPageState extends State<ProductListPage> {
   bool _isLoading = true;
   bool _showInitialLoader = true;
   bool _hasError = false;
+  bool _isRefreshing = false;
   late final ProductStorageService _productService;
 
   @override
@@ -43,6 +44,15 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Future<void> _loadProducts() async {
+    if (_isRefreshing) return;
+
+    setState(() {
+      _isRefreshing = true;
+      if (!_showInitialLoader) {
+        _isLoading = true;
+      }
+    });
+
     try {
       final products = await _productService.getProducts();
       if (mounted) {
@@ -50,6 +60,7 @@ class _ProductListPageState extends State<ProductListPage> {
           _products = products;
           _isLoading = false;
           _hasError = false;
+          _isRefreshing = false;
         });
       }
     } catch (e) {
@@ -57,6 +68,7 @@ class _ProductListPageState extends State<ProductListPage> {
         setState(() {
           _isLoading = false;
           _hasError = true;
+          _isRefreshing = false;
         });
       }
     }
@@ -77,11 +89,22 @@ class _ProductListPageState extends State<ProductListPage> {
             ),
           ),
           if (isOnline)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _loadProducts,
-              tooltip: 'Обновить список',
-            )
+            _isRefreshing
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: _loadProducts,
+                    tooltip: 'Refresh list',
+                  )
           else
             Row(
               mainAxisSize: MainAxisSize.min,

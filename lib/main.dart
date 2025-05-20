@@ -14,6 +14,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'providers/connectivity_provider.dart';
 import 'providers/user_session_provider.dart';
+import 'providers/pin_provider.dart';
+import 'services/pin_service.dart';
 
 import 'package:flutter/cupertino.dart';
 
@@ -24,6 +26,8 @@ import 'firebase_options.dart';
 import 'pages/product_list/product_list_page.dart';
 import 'pages/cart/cart_page.dart';
 import 'pages/profile/profile_page.dart';
+import 'pages/pin/set_pin_page.dart';
+import 'pages/pin/enter_pin_page.dart';
 import 'widgets/offline_indicator.dart';
 
 
@@ -50,6 +54,12 @@ Future<void> main() async {
           ChangeNotifierProvider(create: (_) => AuthProvider(AuthService())),
           ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
           ChangeNotifierProvider(create: (_) => UserSessionProvider()),
+          Provider(create: (_) => PinService(prefs)),
+          ChangeNotifierProxyProvider<PinService, PinProvider>(
+            create: (context) => PinProvider(context.read<PinService>()),
+            update: (context, pinService, previous) => 
+              previous ?? PinProvider(pinService),
+          ),
         ],
         child: const MyApp(),
       ),
@@ -80,7 +90,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const AuthWrapper(),
+      home: const PinWrapper(),
     );
   }
 
@@ -127,6 +137,114 @@ class MyApp extends StatelessWidget {
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: Colors.white),
         bodyMedium: TextStyle(color: Colors.white70),
+      ),
+    );
+  }
+}
+
+class PinWrapper extends StatefulWidget {
+  const PinWrapper({Key? key}) : super(key: key);
+
+  @override
+  State<PinWrapper> createState() => _PinWrapperState();
+}
+
+class _PinWrapperState extends State<PinWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    _initializePin();
+  }
+
+  Future<void> _initializePin() async {
+    await context.read<PinProvider>().initialize();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<PinProvider>(
+      builder: (context, pinProvider, child) {
+        if (!pinProvider.isInitialized) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        return FutureBuilder<bool>(
+          future: pinProvider.hasPin(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            if (!snapshot.data! && !pinProvider.isAuthenticated) {
+              return const SetPinPage();
+            }
+
+            if (!pinProvider.isAuthenticated) {
+              return const EnterPinPage();
+            }
+
+            return const MainScreen();
+          },
+        );
+      },
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    const ProductListPage(),
+    const CartPage(),
+    const ProfilePage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.shopping_bag_outlined),
+            selectedIcon: Icon(Icons.shopping_bag),
+            label: 'Products',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_cart_outlined),
+            selectedIcon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

@@ -115,21 +115,29 @@ class _CartPageState extends State<CartPage> {
     }
 
     return Scaffold(
-      body: Column(
-        children: [
-          CartAddButton(onPressed: _addRandomProduct),
-          Expanded(
-            child: CartList(
-              listKey: _listKey,
-              products: _cartProducts,
-              onRemoveItem: _removeItem,
-            ),
+      appBar: AppBar(
+        title: const Text('Cart'),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            children: [
+              CartAddButton(onPressed: _addRandomProduct),
+              Expanded(
+                child: CartList(
+                  listKey: _listKey,
+                  products: _cartProducts,
+                  onRemoveItem: _removeItem,
+                ),
+              ),
+              CartTotal(
+                totalPrice: _totalPrice,
+                onClearCart: _removeAllItems,
+              ),
+            ],
           ),
-          CartTotal(
-            totalPrice: _totalPrice,
-            onClearCart: _removeAllItems,
-          ),
-        ],
+        ),
       ),
     );
   }
