@@ -16,6 +16,7 @@ import 'settings/account_deletion.dart';
 import '../../providers/user_session_provider.dart';
 import '../../providers/pin_provider.dart';
 import '../pin/change_pin_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(AppLocalizations.of(context)!.profile),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -37,19 +38,19 @@ class ProfilePage extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
+                  title: Text(AppLocalizations.of(context)!.logout),
+                  content: Text(AppLocalizations.of(context)!.logoutConfirm),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     TextButton(
                       onPressed: () {
                         context.read<PinProvider>().logout();
                         Navigator.pop(context);
                       },
-                      child: const Text('Logout'),
+                      child: Text(AppLocalizations.of(context)!.logout),
                     ),
                   ],
                 ),
@@ -112,7 +113,7 @@ class ProfilePage extends StatelessWidget {
         Card(
           child: ListTile(
             leading: const Icon(Icons.pin),
-            title: const Text('Change PIN Code'),
+            title: Text(AppLocalizations.of(context)!.changePinCode),
             onTap: () {
               Navigator.push(
                 context,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CartAddButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -14,7 +15,7 @@ class CartAddButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ElevatedButton.icon(
         icon: const Icon(Icons.add, size: 24),
-        label: const Text('Add Product', style: TextStyle(fontSize: 16)),
+        label: Text(AppLocalizations.of(context)!.c_add, style: const TextStyle(fontSize: 16)),
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'cart_add_button.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CartEmptyState extends StatelessWidget {
   final VoidCallback onAddProduct;
@@ -28,7 +29,7 @@ class CartEmptyState extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
-            child: const Text('Browse Products'),
+            child: Text(AppLocalizations.of(context)!.browseProducts),
           ),
         ],
       ),

@@ -73,12 +73,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    
     return MaterialApp(
       title: 'My Shop',
       debugShowCheckedModeBanner: false,
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: themeProvider.themeMode,
+      locale: authProvider.locale,
       supportedLocales: const [
         Locale('en', ''),
         Locale('ru', ''),
@@ -228,21 +231,21 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.shopping_bag_outlined),
-            selectedIcon: Icon(Icons.shopping_bag),
-            label: 'Products',
+            icon: const Icon(Icons.shopping_bag_outlined),
+            selectedIcon: const Icon(Icons.shopping_bag),
+            label: AppLocalizations.of(context)!.products,
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
-            label: 'Cart',
+            icon: const Icon(Icons.shopping_cart_outlined),
+            selectedIcon: const Icon(Icons.shopping_cart),
+            label: AppLocalizations.of(context)!.cart,
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: AppLocalizations.of(context)!.profile,
           ),
         ],
       ),
@@ -310,9 +313,9 @@ class _GuestModeBanner extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (_) => AuthPage()),
             ),
-            child: const Text(
-              'LOGIN',
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            child: Text(
+              AppLocalizations.of(context)!.login,
+              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -399,14 +402,15 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         selectedItemColor: theme.colorScheme.primary,
         unselectedItemColor: theme.colorScheme.onSurface.withOpacity(0.6),
         items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          if(!widget.guestMode) const BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
+          BottomNavigationBarItem(icon: const Icon(Icons.home), label: AppLocalizations.of(context)!.nav_home),
+          if(!widget.guestMode) 
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.shopping_cart),
+              label: AppLocalizations.of(context)!.nav_cart,
+            ),
           BottomNavigationBarItem(
             icon: Icon(widget.guestMode ? Icons.lock : Icons.person),
-            label: widget.guestMode ? 'Login' : 'Profile',
+            label: widget.guestMode ? AppLocalizations.of(context)!.login : AppLocalizations.of(context)!.nav_login,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileThemeSettings extends StatelessWidget {
   final bool isDarkMode;
@@ -19,13 +20,14 @@ class ProfileThemeSettings extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
+            // TODO: Add to l10n if needed
             'Appearance',
             style: Theme.of(context).textTheme.titleSmall,
           ),
         ),
         ListTile(
           leading: const Icon(Icons.brightness_4),
-          title: const Text('Dark Mode'),
+          title: Text(AppLocalizations.of(context)!.darkMode),
           trailing: Switch(
             value: isDarkMode,
             onChanged: onThemeChanged,

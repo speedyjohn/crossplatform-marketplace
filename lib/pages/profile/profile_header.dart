@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../auth/auth_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileHeader extends StatelessWidget implements PreferredSizeWidget {
   final bool isLoggedIn;
@@ -14,7 +15,7 @@ class ProfileHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: const Text('Profile'),
+      title: Text(AppLocalizations.of(context)!.profile),
       actions: [
         if (isLoggedIn)
           IconButton(
@@ -23,9 +24,9 @@ class ProfileHeader extends StatelessWidget implements PreferredSizeWidget {
               onLogout();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Logged out successfully'),
+                  content: Text(AppLocalizations.of(context)!.loggedOutSuccessfully),
                   action: SnackBarAction(
-                    label: 'Sign In',
+                    label: AppLocalizations.of(context)!.signIn,
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,

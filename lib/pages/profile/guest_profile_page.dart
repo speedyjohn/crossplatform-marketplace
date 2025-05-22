@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../auth/auth_page.dart';
 
@@ -24,14 +25,14 @@ class GuestProfilePage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (_) => AuthPage()),
             ),
-            child: const Text('Sign In'),
+            child: Text(AppLocalizations.of(context)!.signIn),
           ),
           TextButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => AuthPage(isRegistering: true)),
             ),
-            child: const Text('Create Account'),
+            child: Text(AppLocalizations.of(context)!.createAccount),
           ),
         ],
       ),

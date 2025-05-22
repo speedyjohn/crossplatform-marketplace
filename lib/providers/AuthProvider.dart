@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/AuthService.dart';
 import '../models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService;
@@ -35,10 +36,18 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> initialize() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedLanguage = prefs.getString('language');
+      
       final user = _auth.currentUser;
       if (user != null) {
         _user = await _getUserData(user.uid);
         _isGuest = false;
+        // Use user's language preference if available, otherwise use saved language
+        _locale = Locale(_user?.language ?? savedLanguage ?? 'en');
+      } else {
+        // For guest users, use saved language or default to English
+        _locale = Locale(savedLanguage ?? 'en');
       }
       notifyListeners();
     } catch (e) {
@@ -157,9 +166,21 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> updateLanguage(String language) async {
-    if (_user == null) return;
     _locale = Locale(language);
-    await _authService.updateUserPreferences(_user!.uid, language: language);
     notifyListeners();
+
+    try {
+      if (_user != null) {
+        await _authService.updateUserPreferences(_user!.uid, language: language);
+      }
+      // Save language preference even for guest users
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('language', language);
+    } catch (e) {
+      debugPrint('Failed to update language: $e');
+      // Revert on error
+      _locale = Locale(_user?.language ?? 'en');
+      notifyListeners();
+    }
   }
 }

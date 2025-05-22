@@ -6,6 +6,7 @@ import 'cart_empty_state.dart';
 import 'cart_total.dart';
 import 'cart_list.dart';
 import 'cart_add_button.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -116,7 +117,7 @@ class _CartPageState extends State<CartPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cart'),
+        title: Text(AppLocalizations.of(context)!.cart),
       ),
       body: SafeArea(
         child: Padding(

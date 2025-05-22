@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/user.dart';
 import '../../providers/AuthProvider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileUserInfo extends StatefulWidget {
   final AppUser user;
@@ -72,7 +73,7 @@ class _ProfileUserInfoState extends State<ProfileUserInfo> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update in Firebase: $e'),
+          content: Text(AppLocalizations.of(context)!.failedToUpdateFirebase(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -86,12 +87,12 @@ class _ProfileUserInfoState extends State<ProfileUserInfo> {
       children: [
         ListTile(
           leading: const Icon(Icons.email),
-          title: const Text('Email'),
+          title: Text(AppLocalizations.of(context)!.email),
           subtitle: _isEditingEmail
               ? TextField(
                   controller: _emailController,
                   decoration: const InputDecoration(
-                    hintText: 'Enter email',
+                    hintText: '',
                   ),
                   onSubmitted: (value) {
                     setState(() {
@@ -116,12 +117,12 @@ class _ProfileUserInfoState extends State<ProfileUserInfo> {
         if (widget.user.name != null)
           ListTile(
             leading: const Icon(Icons.person),
-            title: const Text('Name'),
+            title: Text(AppLocalizations.of(context)!.name),
             subtitle: _isEditingName
                 ? TextField(
                     controller: _nameController,
                     decoration: const InputDecoration(
-                      hintText: 'Enter name',
+                      hintText: '',
                     ),
                     onSubmitted: (value) {
                       setState(() {
