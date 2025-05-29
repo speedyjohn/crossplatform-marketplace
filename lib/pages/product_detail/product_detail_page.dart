@@ -247,12 +247,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   if (_isLoading)
                     const Center(child: CircularProgressIndicator())
                   else if (_comments.isEmpty)
-                    const Center(
+                    Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Text(
                           AppLocalizations.of(context)!.commentsEmpty,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontStyle: FontStyle.italic,
                           ),

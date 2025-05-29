@@ -39,7 +39,7 @@ class CommentInput extends StatelessWidget {
               tooltip: 'Make photo',
             ),
             const SizedBox(width: 8),
-            const Text(AppLocalizations.of(context)!.pinPhoto,
+            Text(AppLocalizations.of(context)!.pinPhoto,
                 style: TextStyle(color: Colors.grey)),
           ],
         ),
@@ -51,7 +51,7 @@ class CommentInput extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.writeComment,
+                    hintText: AppLocalizations.of(context)!.commentsWrite,
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
