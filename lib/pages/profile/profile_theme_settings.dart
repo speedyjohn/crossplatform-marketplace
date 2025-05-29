@@ -20,8 +20,7 @@ class ProfileThemeSettings extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
-            // TODO: Add to l10n if needed
-            'Appearance',
+            AppLocalizations.of(context)!.appearance,
             style: Theme.of(context).textTheme.titleSmall,
           ),
         ),

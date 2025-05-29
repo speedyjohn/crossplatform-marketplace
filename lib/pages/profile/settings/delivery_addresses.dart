@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../../../providers/user_session_provider.dart';
 
 class DeliveryAddresses extends StatelessWidget {
@@ -14,24 +16,24 @@ class DeliveryAddresses extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Address'),
+        title: Text(AppLocalizations.of(context)!.addAddress),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Address Name (e.g. Home, Work)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.nameAddress,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: streetController,
-                decoration: const InputDecoration(
-                  labelText: 'Street Address',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.streetAddress,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -40,9 +42,9 @@ class DeliveryAddresses extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       controller: cityController,
-                      decoration: const InputDecoration(
-                        labelText: 'City',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.cityAddress,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -50,9 +52,9 @@ class DeliveryAddresses extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       controller: postalController,
-                      decoration: const InputDecoration(
-                        labelText: 'Postal Code',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.postalAddress,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -64,7 +66,7 @@ class DeliveryAddresses extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -82,7 +84,7 @@ class DeliveryAddresses extends StatelessWidget {
                 Navigator.pop(context);
               }
             },
-            child: const Text('Add Address'),
+            child: Text(AppLocalizations.of(context)!.addAddress),
           ),
         ],
       ),
@@ -96,87 +98,82 @@ class DeliveryAddresses extends StatelessWidget {
         final addresses = userSession.addresses;
         
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.location_on_outlined),
-                title: const Text('Delivery Addresses'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () => _showAddAddressDialog(context),
-                ),
-              ),
-              if (addresses.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'No addresses added yet',
-                    style: TextStyle(color: Colors.grey),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.location_on_outlined),
+                  title: Text(AppLocalizations.of(context)!.deliveryAddresses),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _showAddAddressDialog(context),
                   ),
-                )
-              else
-                ...addresses.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final address = entry.value;
-                  // Parse the address string back to a map
-                  final addressMap = _parseAddressString(address);
-                  
-                  return Column(
-                    children: [
-                      const Divider(height: 1),
-                      ListTile(
-                        title: Text(addressMap['name'] ?? ''),
-                        subtitle: Text(
-                          '${addressMap['street']}\n${addressMap['city']}, ${addressMap['postal']}',
-                        ),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Text('Edit'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'default',
-                              child: Text('Set as Default'),
-                            ),
-                          ],
-                          onSelected: (value) {
-                            if (value == 'delete') {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Address'),
-                                  content: const Text(
-                                    'Are you sure you want to delete this address?',
+                ),
+                if (addresses.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      AppLocalizations.of(context)!.noAddress,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  )
+                else
+                  ...addresses.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final address = entry.value;
+                    // Parse the address string back to a map
+                    final addressMap = _parseAddressString(address);
+                    
+                    return Column(
+                      children: [
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text(addressMap['name'] ?? ''),
+                          subtitle: Text(
+                            '${addressMap['street']}\n${addressMap['city']}, ${addressMap['postal']}',
+                          ),
+                          trailing: PopupMenuButton(
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text(AppLocalizations.of(context)!.deleteAddress),
+                              ),
+                            ],
+                            onSelected: (value) {
+                              if (value == 'delete') {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(AppLocalizations.of(context)!.deleteAddress),
+                                    content: Text(
+                                      AppLocalizations.of(context)!.deleteAddressConfirmation,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(AppLocalizations.of(context)!.cancel),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          userSession.removeAddress(index);
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(AppLocalizations.of(context)!.deleteAddress),
+                                      ),
+                                    ],
                                   ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        userSession.removeAddress(index);
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                          },
+                                );
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-            ],
+                      ],
+                    );
+                  }).toList(),
+              ],
+            ),
           ),
         );
       },

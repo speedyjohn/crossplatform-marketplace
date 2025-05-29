@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/user_session_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PaymentMethods extends StatelessWidget {
   const PaymentMethods({Key? key}) : super(key: key);
@@ -14,15 +15,15 @@ class PaymentMethods extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Payment Method'),
+        title: Text(AppLocalizations.of(context)!.addPaymentMethod),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: cardNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Card Number',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.cardNumber,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -34,8 +35,8 @@ class PaymentMethods extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       controller: expiryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Expiry Date',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.cardDate,
                         hintText: 'MM/YY',
                         border: OutlineInputBorder(),
                       ),
@@ -46,8 +47,8 @@ class PaymentMethods extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       controller: cvvController,
-                      decoration: const InputDecoration(
-                        labelText: 'CVV',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.cardCVV,
                         border: OutlineInputBorder(),
                       ),
                       obscureText: true,
@@ -60,8 +61,8 @@ class PaymentMethods extends StatelessWidget {
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Cardholder Name',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.cardName,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -71,7 +72,7 @@ class PaymentMethods extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -88,7 +89,7 @@ class PaymentMethods extends StatelessWidget {
                 Navigator.pop(context);
               }
             },
-            child: const Text('Add Card'),
+            child: Text(AppLocalizations.of(context)!.cardAdd),
           ),
         ],
       ),
@@ -102,85 +103,80 @@ class PaymentMethods extends StatelessWidget {
         final paymentMethods = userSession.paymentMethods;
         
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.payment),
-                title: const Text('Payment Methods'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () => _showAddCardDialog(context),
-                ),
-              ),
-              if (paymentMethods.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'No payment methods added yet',
-                    style: TextStyle(color: Colors.grey),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.payment),
+                  title: Text(AppLocalizations.of(context)!.paymentMethods),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () => _showAddCardDialog(context),
                   ),
-                )
-              else
-                ...paymentMethods.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final method = entry.value;
-                  final methodMap = _parseMethodString(method);
-                  
-                  return Column(
-                    children: [
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.credit_card),
-                        title: Text('•••• •••• •••• ${methodMap['number']?.substring(methodMap['number']!.length - 4) ?? ''}'),
-                        subtitle: Text('Expires ${methodMap['expiry']}\n${methodMap['name']}'),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Text('Edit'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'default',
-                              child: Text('Set as Default'),
-                            ),
-                          ],
-                          onSelected: (value) {
-                            if (value == 'delete') {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Payment Method'),
-                                  content: const Text(
-                                    'Are you sure you want to delete this payment method?',
+                ),
+                if (paymentMethods.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      AppLocalizations.of(context)!.noPaymentMethods,
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                else
+                  ...paymentMethods.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final method = entry.value;
+                    final methodMap = _parseMethodString(method);
+                    
+                    return Column(
+                      children: [
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.credit_card),
+                          title: Text('•••• •••• •••• ${methodMap['number']?.substring(methodMap['number']!.length - 4) ?? ''}'),
+                          subtitle: Text('${methodMap['expiry']}\n${methodMap['name']}'),
+                          trailing: PopupMenuButton(
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text(AppLocalizations.of(context)!.delete),
+                              ),
+                            ],
+                            onSelected: (value) {
+                              if (value == 'delete') {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(AppLocalizations.of(context)!.deletePaymentMethod),
+                                    content: Text(
+                                      AppLocalizations.of(context)!.deletePaymentMethodConfirmation,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(AppLocalizations.of(context)!.cancel),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          userSession.removePaymentMethod(index);
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(AppLocalizations.of(context)!.delete),
+                                      ),
+                                    ],
                                   ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        userSession.removePaymentMethod(index);
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                          },
+                                );
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-            ],
+                      ],
+                    );
+                  }).toList(),
+              ],
+            ),
           ),
         );
       },

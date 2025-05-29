@@ -124,7 +124,6 @@ class _CartPageState extends State<CartPage> {
           padding: const EdgeInsets.only(top: 8),
           child: Column(
             children: [
-              CartAddButton(onPressed: _addRandomProduct),
               Expanded(
                 child: CartList(
                   listKey: _listKey,

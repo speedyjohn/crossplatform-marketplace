@@ -1,149 +1,49 @@
 {
     "appName": "Market",
-    "@appName": {
-        "description": "The name of the application"
-    },
-
     "profile": "Profile",
-    "@profile": {
-        "description": "Profile section title"
-    },
-
     "settings": "Settings",
-    "@settings": {
-        "description": "Settings section title"
-    },
-
     "products": "Products",
-    "@products": {
-        "description": "Products section title"
-    },
-
     "cart": "Cart",
-    "@cart": {
-        "description": "Cart section title"
-    },
-
+    "cartTotal": "Total",
+    "cartEmpty": "Your cart is empty",
     "changePassword": "Change Password",
-    "@changePassword": {
-        "description": "Change password button text"
-    },
-
     "currentPassword": "Current Password",
-    "@currentPassword": {
-        "description": "Current password field label"
-    },
-
     "newPassword": "New Password",
-    "@newPassword": {
-        "description": "New password field label"
-    },
-
     "confirmPassword": "Confirm Password",
-    "@confirmPassword": {
-        "description": "Confirm password field label"
-    },
-
     "twoFactorAuth": "Two-Factor Authentication",
-    "@twoFactorAuth": {
-        "description": "2FA section title"
-    },
-
     "twoFactorEnabled": "Enabled - Using Authenticator App",
-    "@twoFactorEnabled": {
-        "description": "2FA enabled status"
-    },
-
     "twoFactorDisabled": "Disabled - Enable for extra security",
-    "@twoFactorDisabled": {
-        "description": "2FA disabled status"
-    },
-
     "deliveryAddresses": "Delivery Addresses",
-    "@deliveryAddresses": {
-        "description": "Delivery addresses section title"
-    },
-
     "addAddress": "Add Address",
-    "@addAddress": {
-        "description": "Add address button text"
-    },
-
+    "nameAddress": "Address name",
+    "streetAddress": "Address street",
+    "cityAddress": "Address city",
+    "postalAddress": "Postal code",
+    "noAddress": "No address added yet",
     "editAddress": "Edit Address",
-    "@editAddress": {
-        "description": "Edit address button text"
-    },
-
     "deleteAddress": "Delete Address",
-    "@deleteAddress": {
-        "description": "Delete address button text"
-    },
-
+    "deleteAddressConfirmation": "Are you sure you want to delete this address?",
     "setAsDefault": "Set as Default",
-    "@setAsDefault": {
-        "description": "Set as default button text"
-    },
-
     "paymentMethods": "Payment Methods",
-    "@paymentMethods": {
-        "description": "Payment methods section title"
-    },
-
     "addPaymentMethod": "Add Payment Method",
-    "@addPaymentMethod": {
-        "description": "Add payment method button text"
-    },
-
+    "noPaymentMethods": "No payment methods added yet",
+    "deletePaymentMethod": "Delete payment method",
+    "deletePaymentMethodConfirmation": "Are you sure you want to delete this payment method?",
+    "cardNumber": "Card number",
+    "cardDate": "Expiry date",
+    "cardCVV": "CVV",
+    "cardName": "Cardholder name",
+    "cardAdd": "Add card",
     "orderHistory": "Order History",
-    "@orderHistory": {
-        "description": "Order history section title"
-    },
-
     "deleteAccount": "Delete Account",
-    "@deleteAccount": {
-        "description": "Delete account button text"
-    },
-
     "deactivateAccount": "Deactivate Account",
-    "@deactivateAccount": {
-        "description": "Deactivate account button text"
-    },
-
     "cancel": "Cancel",
-    "@cancel": {
-        "description": "Cancel button text"
-    },
-
     "save": "Save",
-    "@save": {
-        "description": "Save button text"
-    },
-
     "logout": "Logout",
-    "@logout": {
-        "description": "Logout button text"
-    },
-
     "login": "Login",
-    "@login": {
-        "description": "Login button text"
-    },
-
     "register": "Register",
-    "@register": {
-        "description": "Register button text"
-    },
-
     "email": "Email",
-    "@email": {
-        "description": "Email field label"
-    },
-
     "password": "Password",
-    "@password": {
-        "description": "Password field label"
-    },
-
     "c_checkout": "Checkout",
     "c_add": "Add Product",
     "c_total": "Total",
@@ -182,5 +82,6 @@
     "name": "Name",
     "expires": "Expires {date}\n{name}",
     "failedToUpdateFirebase": "Failed to update in Firebase: {error}",
-    "resetSettings": "Reset settings"
+    "resetSettings": "Reset settings",
+    "appearance": "Appearance"
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/comment.dart';
 
 class CommentItem extends StatelessWidget {
@@ -9,8 +10,15 @@ class CommentItem extends StatelessWidget {
     required this.comment,
   }) : super(key: key);
 
+  String _formatDate(DateTime date) {
+    return DateFormat('dd.MM.yyyy').format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('Building CommentItem for comment: ${comment.id}');
+    print('Comment data: userName=${comment.userName}, text=${comment.text}, date=${comment.date}');
+    
     final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -32,16 +40,18 @@ class CommentItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                comment.userName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: theme.colorScheme.onPrimary,
+              Expanded(
+                child: Text(
+                  comment.userName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
               Text(
-                comment.date,
+                _formatDate(comment.date),
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontSize: 12,
@@ -56,6 +66,19 @@ class CommentItem extends StatelessWidget {
               color: theme.colorScheme.onPrimary,
             ),
           ),
+          if (comment.imageUrl != null) ...[
+            const SizedBox(height: 8),
+            Image.network(
+              comment.imageUrl!,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.broken_image,
+                size: 50,
+              ),
+            ),
+          ],
         ],
       ),
     );

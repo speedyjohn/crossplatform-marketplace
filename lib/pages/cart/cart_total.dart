@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CartTotal extends StatelessWidget {
   final double totalPrice;
@@ -22,7 +23,7 @@ class CartTotal extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Total:',
+            AppLocalizations.of(context)!.cartTotal,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           Row(

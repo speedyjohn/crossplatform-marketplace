@@ -18,12 +18,10 @@ class CartEmptyState extends StatelessWidget {
         children: [
           const Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
-          const Text(
-            'Your cart is empty',
+          Text(
+            AppLocalizations.of(context)!.cartEmpty,
             style: TextStyle(fontSize: 20, color: Colors.grey),
           ),
-          const SizedBox(height: 8),
-          CartAddButton(onPressed: onAddProduct),
           const SizedBox(height: 8),
           TextButton(
             onPressed: () {

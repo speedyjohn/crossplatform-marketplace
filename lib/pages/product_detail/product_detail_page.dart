@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../../models/product.dart';
 import '../../models/comment.dart';
+import '../../services/comment_service.dart';
+import '../../providers/AuthProvider.dart';
 import 'product_detail_header.dart';
 import 'product_specs_table.dart';
 import 'comment_item.dart';
@@ -24,7 +27,9 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   final TextEditingController _commentController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  final CommentService _commentService = CommentService();
   List<Comment> _comments = [];
+  bool _isLoading = true;
   final Map<String, String> _specs = {
     'Материал': 'Пластик',
     'Вес': '450 г',
@@ -36,24 +41,39 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   @override
   void initState() {
     super.initState();
+    print('ProductDetailPage initialized with product ID: ${widget.product.id}');
     _loadComments();
   }
 
-  void _loadComments() {
+  Future<void> _loadComments() async {
+    if (!mounted) return;
+
     setState(() {
-      _comments = [
-        Comment(
-          userName: "Алексей",
-          text: "Отличный товар, всем рекомендую!",
-          date: "10.05.2023",
-        ),
-        Comment(
-          userName: "Мария",
-          text: "Качество на высоте, но дороговато",
-          date: "15.05.2023",
-        ),
-      ];
+      _isLoading = true;
     });
+
+    try {
+      print('Loading comments for product: ${widget.product.id}');
+      final comments = await _commentService.getCommentsForProduct(widget.product.id);
+      print('Loaded ${comments.length} comments');
+      
+      if (!mounted) return;
+      
+      setState(() {
+        _comments = comments;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading comments: $e');
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading comments: $e')),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _showFullScreenImage(BuildContext context) {
@@ -105,7 +125,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
-  void _addComment() {
+  Future<void> _addComment() async {
     if (_commentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Enter text of the comment.')),
@@ -113,16 +133,45 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       return;
     }
 
+    print('Creating new comment for product: ${widget.product.id}');
+    print('Product details: name=${widget.product.name}, id=${widget.product.id}');
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userName = authProvider.user?.name ?? 'Guest';
+
     final newComment = Comment(
-      userName: "You",
+      id: '', // Will be set by Firestore
+      userName: userName,
       text: _commentController.text,
-      date: "${DateTime.now().day}.${DateTime.now().month}.${DateTime.now().year}",
+      date: DateTime.now(),
+      productId: widget.product.id,
     );
 
-    setState(() {
-      _comments.insert(0, newComment);
+    print('New comment data: ${newComment.toMap()}');
+
+    try {
+      print('Adding comment to Firestore...');
+      await _commentService.addComment(newComment);
       _commentController.clear();
-    });
+      print('Comment added successfully, reloading comments...');
+      
+      // Add a small delay to ensure Firestore has updated
+      await Future.delayed(const Duration(milliseconds: 500));
+      await _loadComments(); // Reload comments after adding
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Comment added successfully')),
+        );
+      }
+    } catch (e) {
+      print('Error adding comment: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding comment: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -185,7 +234,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     picker: _picker,
                   ),
                   const SizedBox(height: 16),
-                  ..._comments.map((comment) => CommentItem(comment: comment)),
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_comments.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'No comments yet. Be the first to comment!',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _comments.length,
+                      itemBuilder: (context, index) {
+                        return CommentItem(comment: _comments[index]);
+                      },
+                    ),
                 ],
               ),
             ),

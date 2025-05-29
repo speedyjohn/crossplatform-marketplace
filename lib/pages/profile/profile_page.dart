@@ -125,11 +125,8 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
         PasswordSettings(),
-        TwoFactorSettings(),
         DeliveryAddresses(),
         PaymentMethods(),
-        OrderHistory(),
-        AccountDeletion(),
       ],
     );
   }
