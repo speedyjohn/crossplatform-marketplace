@@ -90,5 +90,10 @@
     "comments": "Comments",
     "commentsPhoto": "Pin photo",
     "commentsWrite": "Write a comment...",
-    "commentsEmpty": "No comments yet. Be the first to comment!"
+    "commentsEmpty": "No comments yet. Be the first to comment!",
+    "searchProducts": "Search products...",
+    "sortAZ": "Name (A-Z)",
+    "sortZA": "Name (Z-A)",
+    "sortAsc": "Price (Low-High)",
+    "sortDesc": "Price (High-Low)"
 }

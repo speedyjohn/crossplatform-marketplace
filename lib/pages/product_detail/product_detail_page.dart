@@ -259,6 +259,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ),
                       ),
                     )
+
                   else
                     ListView.builder(
                       shrinkWrap: true,
