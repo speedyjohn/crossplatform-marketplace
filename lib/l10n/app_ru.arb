@@ -6,6 +6,8 @@
     "cart": "Корзина",
     "cartTotal": "Общая цена",
     "cartEmpty": "Ваша корзина пуста",
+    "cartAdd": "Добавить в корзину",
+    "cartProductAdded": "Продукт добавлен в корзину",
     "changePassword": "Изменить пароль",
     "currentPassword": "Текущий пароль",
     "newPassword": "Новый пароль",
@@ -77,5 +79,10 @@
     "expires": "Действует до {date}\n{name}",
     "failedToUpdateFirebase": "Не удалось обновить в Firebase: {error}",
     "resetSettings": "Сбросить настройки",
-    "appearance": "Внешний вид"
+    "appearance": "Внешний вид",
+    "details": "Детали",
+    "comments": "Комментарии",
+    "commentsPhoto": "Добавить фото",
+    "commentsWrite": "Напиши комментарий...",
+    "commentsEmpty": "Нет ни одного комментария. Будьте первым!"
 }

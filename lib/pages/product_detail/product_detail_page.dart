@@ -5,10 +5,12 @@ import '../../models/product.dart';
 import '../../models/comment.dart';
 import '../../services/comment_service.dart';
 import '../../providers/AuthProvider.dart';
+import '../../widgets/add_to_cart_button.dart';
 import 'product_detail_header.dart';
 import 'product_specs_table.dart';
 import 'comment_item.dart';
 import 'comment_input.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -218,6 +220,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       color: Colors.red,
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  AddToCartButton(
+                    product: widget.product,
+                    onAdded: () {
+                      // Optional: Add any additional logic when product is added to cart
+                    },
+                  ),
+                  const SizedBox(height: 24),
                   ProductSpecsTable(specs: _specs),
                   const SizedBox(height: 24),
                   const Text(
@@ -241,7 +251,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Text(
-                          'No comments yet. Be the first to comment!',
+                          AppLocalizations.of(context)!.commentsEmpty,
                           style: TextStyle(
                             color: Colors.grey,
                             fontStyle: FontStyle.italic,

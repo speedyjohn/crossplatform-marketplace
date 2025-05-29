@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CommentInput extends StatelessWidget {
   final TextEditingController controller;
@@ -38,7 +39,7 @@ class CommentInput extends StatelessWidget {
               tooltip: 'Make photo',
             ),
             const SizedBox(width: 8),
-            const Text('Pin photo',
+            const Text(AppLocalizations.of(context)!.pinPhoto,
                 style: TextStyle(color: Colors.grey)),
           ],
         ),
@@ -49,8 +50,8 @@ class CommentInput extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: controller,
-                  decoration: const InputDecoration(
-                    hintText: 'Write a comment...',
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.writeComment,
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,

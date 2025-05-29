@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/product.dart';
+import '../../services/cart_service.dart';
 import 'cart_item.dart';
 import 'cart_empty_state.dart';
 import 'cart_total.dart';
 import 'cart_list.dart';
-import 'cart_add_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CartPage extends StatefulWidget {
@@ -17,92 +15,38 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  List<Product> _cartProducts = [];
+  final CartService _cartService = CartService();
+  List<CartItem> _cartItems = [];
   bool _isLoading = true;
   double _totalPrice = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _loadCartProducts();
+    _subscribeToCart();
   }
 
-  Future<void> _loadCartProducts() async {
-    final products = await _fetchCartProducts();
-    setState(() {
-      _cartProducts = products;
-      _totalPrice = _calculateTotal(products);
-      _isLoading = false;
+  void _subscribeToCart() {
+    _cartService.getCartItems().listen((items) {
+      setState(() {
+        _cartItems = items;
+        _totalPrice = _calculateTotal(items);
+        _isLoading = false;
+      });
     });
   }
 
-  Future<List<Product>> _fetchCartProducts() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('products').limit(5).get();
-    return snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
-  }
-
-  Future<Product> _fetchRandomProduct() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('products').get();
-    final allProducts =
-        snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
-    allProducts.shuffle();
-    return allProducts.first;
-  }
-
-  double _calculateTotal(List<Product> products) {
-    return products.fold(0, (sum, product) => sum + product.price);
-  }
-
-  void _addRandomProduct() async {
-    final randomProduct = await _fetchRandomProduct();
-    setState(() {
-      _cartProducts.insert(0, randomProduct);
-      _totalPrice += randomProduct.price;
-    });
-    _listKey.currentState?.insertItem(0,
-        duration: const Duration(milliseconds: 300));
+  double _calculateTotal(List<CartItem> items) {
+    return items.fold(0.0, (sum, item) => sum + item.price);
   }
 
   void _removeItem(int index) {
-    final removedProduct = _cartProducts[index];
-    setState(() {
-      _totalPrice -= removedProduct.price;
-      _cartProducts.removeAt(index);
-    });
-
-    _listKey.currentState?.removeItem(
-      index,
-      (context, animation) => CartItem(
-        product: removedProduct,
-        index: -1,
-        onRemove: (_) {},
-      ),
-      duration: const Duration(milliseconds: 300),
-    );
+    final removedItem = _cartItems[index];
+    _cartService.removeFromCart(removedItem.productId);
   }
 
   Future<void> _removeAllItems() async {
-    for (var i = _cartProducts.length - 1; i >= 0; i--) {
-      final removedProduct = _cartProducts[i];
-      await Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) {
-          setState(() {
-            _totalPrice -= removedProduct.price;
-            _cartProducts.removeAt(i);
-          });
-          _listKey.currentState?.removeItem(
-            i,
-            (context, animation) => CartItem(
-              product: removedProduct,
-              index: -1,
-              onRemove: (_) {},
-            ),
-          );
-        }
-      });
-    }
+    await _cartService.clearCart();
   }
 
   @override
@@ -111,8 +55,8 @@ class _CartPageState extends State<CartPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_cartProducts.isEmpty) {
-      return CartEmptyState(onAddProduct: _addRandomProduct);
+    if (_cartItems.isEmpty) {
+      return CartEmptyState(onAddProduct: () {});
     }
 
     return Scaffold(
@@ -127,7 +71,7 @@ class _CartPageState extends State<CartPage> {
               Expanded(
                 child: CartList(
                   listKey: _listKey,
-                  products: _cartProducts,
+                  cartItems: _cartItems,
                   onRemoveItem: _removeItem,
                 ),
               ),

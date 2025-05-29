@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ProductSpecsTable extends StatelessWidget {
   final Map<String, String> specs;
 
@@ -23,7 +23,7 @@ class ProductSpecsTable extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Details",
+            AppLocalizations.of(context)!.details,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

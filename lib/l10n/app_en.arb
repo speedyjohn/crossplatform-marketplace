@@ -6,6 +6,8 @@
     "cart": "Cart",
     "cartTotal": "Total",
     "cartEmpty": "Your cart is empty",
+    "cartAdd": "Add to cart",
+    "cartProductAdded": "Product added to cart",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
@@ -83,5 +85,10 @@
     "expires": "Expires {date}\n{name}",
     "failedToUpdateFirebase": "Failed to update in Firebase: {error}",
     "resetSettings": "Reset settings",
-    "appearance": "Appearance"
+    "appearance": "Appearance",
+    "details": "Details",
+    "comments": "Comments",
+    "commentsPhoto": "Pin photo",
+    "commentsWrite": "Write a comment...",
+    "commentsEmpty": "No comments yet. Be the first to comment!"
 }

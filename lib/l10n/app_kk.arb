@@ -6,6 +6,8 @@
     "cart": "Себет",
     "cartTotal": "Жалпы баға",
     "cartEmpty": "Сіздің себетіңіз бос",
+    "cartAdd": "Себетке қосу",
+    "cartProductAdded": "Өнім себетке қосылды",
     "changePassword": "Құпия сөзді өзгерту",
     "currentPassword": "Ағымдағы құпия сөз",
     "newPassword": "Жаңа құпия сөз",
@@ -76,5 +78,10 @@
     "expires": "Жарамды мерзімі {date}\n{name}",
     "failedToUpdateFirebase": "Firebase-ке жаңарту сәтсіз: {error}",
     "resetSettings": "Параметрлерді қалпына келтіру",
-    "appearance": "Сыртқы түрі"
+    "appearance": "Сыртқы түрі",
+    "details": "Толығырақ",
+    "comments": "Комментарии",
+    "commentsPhoto": "Пікірлер орны",
+    "commentsWrite": "Пікір жазыңыз...",
+    "commentsEmpty": "Бірде-бір түсініктеме жоқ. Бірінші болыңыз!"
 }
